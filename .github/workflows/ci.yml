@@ -1,0 +1,38 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Syntax-check JS files
+        run: |
+          node --check script.js
+          node --check neural-bg.js
+          node --check api/evaluations.js
+
+      - name: Check required files exist
+        run: |
+          test -f index.html
+          test -f style.css
+          test -f script.js
+          test -f api/evaluations.js
+          echo "All required files present."
+
+  # Vercel is connected to this repo directly (see README-fullstack.md), so it
+  # auto-builds and deploys on every push to main once the CI job above passes.
+  # No deploy step is defined here on purpose — Vercel's own GitHub integration
+  # handles that part of the pipeline.
